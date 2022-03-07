@@ -1,8 +1,9 @@
-#![feature(abi_c_cmse_nonsecure_call)]
+#![feature(abi_c_cmse_nonsecure_call, cmse_nonsecure_entry)]
 #![no_std]
 #![no_main]
 
 mod mpc;
+mod spcb;
 
 // pick a panicking behavior
 use panic_halt as _; // you can put a breakpoint on `rust_begin_unwind` to catch panics
@@ -40,6 +41,17 @@ fn main() -> ! {
             attribute: SauRegionAttribute::NonSecure,
         },
     ).unwrap();
+    // Allow to call NSC functions
+    let base_nsc = 0x10000000;
+    let limit_nsc = 0x10200000;
+    sau.set_region(
+        2,
+        SauRegion {
+            base_address: base_nsc,
+            limit_address: limit_nsc | 0x1F,
+            attribute: SauRegionAttribute::NonSecureCallable,
+        },
+    ).unwrap();
     sau.enable();
     // Code in SSRAM1
     let mut ssram1_mpc = Mpc::new(0x58007000, 0x00000000);
@@ -49,8 +61,11 @@ fn main() -> ! {
     ssram3_mpc.set_non_secure(0x28200000, 0x283F7FFF);
     cortex_m::asm::dsb();
     cortex_m::asm::isb();
+    // Enable secure fault
     let mut scb = peripherals.SCB;
     scb.enable(Exception::SecureFault);
+    // Allows SAU to define the code region as a NSC
+    spcb::enable_idau_nsc_code();
     unsafe {
         let ns_vector_table_addr = 0x00200000;
         // Write the Non-Secure Main Stack Pointer before switching state. Its value is the first
@@ -58,19 +73,21 @@ fn main() -> ! {
         cortex_m::register::msp::write_ns(*(ns_vector_table_addr as *const u32));
         // Create a Non-Secure function pointer to the address of the second entry of the Non
         // Secure Vector Table.
-        let ns_reset_vector: extern "C-cmse-nonsecure-call" fn() -> u32 =
+        let ns_reset_vector: extern "C-cmse-nonsecure-call" fn() -> ! =
             core::mem::transmute::<u32, _>(ns_vector_table_addr + 4);
-        ns_reset_vector();
+        ns_reset_vector()
     }
-    loop {
-        // your code goes here
-    }
+}
+
+#[no_mangle]
+#[cmse_nonsecure_entry]
+pub extern "C" fn secure_function() {
+    hprintln!("secure function called!").unwrap();
 }
 
 #[allow(non_snake_case)]
 #[exception]
 fn SecureFault() {
-    use cortex_m_semihosting::hprintln;
     hprintln!("Secure Fault!!!").unwrap();
     loop {}
 }

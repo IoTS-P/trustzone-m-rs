@@ -23,6 +23,9 @@ rustflags = [
 
   "-C", "link-arg=--allow-multiple-definition",
 
+  # Link veneers
+  "-C", "link-arg=target/veneers.o",
+
   # if you need to link to pre-compiled C libraries provided by a C toolchain
   # use GCC as the linker by commenting out both lines above and then
   # uncommenting the three lines below
