@@ -11,7 +11,7 @@ use cortex_m_semihosting::hprintln;
 
 #[cortex_m_rt::entry]
 fn main() -> ! {
-    hprintln!("Hello from Non Secure World!").unwrap();
+    hprintln!("Hello from Non-Secure World!").unwrap();
     // let secure_value = unsafe {
     //     *(0x38000000 as *const u32)
     // };
@@ -20,6 +20,23 @@ fn main() -> ! {
         fn secure_function();
     }
     unsafe { secure_function(); }
+    extern "C" {
+        fn secure_function_pointers(
+            input: *const u8,
+            input_length: usize,
+            output: *mut u8,
+            output_length: usize,
+        ) -> u32;
+    }
+    let mut output: [u8; 32] = [0; 32];
+    unsafe {
+        secure_function_pointers(
+            0x28000000 as *const u8,
+            16,
+            output.as_mut_ptr(),
+            output.len(),
+        );
+    }
     loop {
         // your code goes here
     }
