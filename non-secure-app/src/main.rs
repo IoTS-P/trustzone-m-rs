@@ -12,7 +12,10 @@ use cortex_m_semihosting::hprintln;
 #[cortex_m_rt::entry]
 fn main() -> ! {
     hprintln!("Hello from Non Secure World!").unwrap();
-
+    let secure_value = unsafe {
+        *(0x38000000 as *const u32)
+    };
+    drop(secure_value);
     loop {
         // your code goes here
     }

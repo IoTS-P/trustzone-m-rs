@@ -11,11 +11,13 @@ use panic_halt as _; // you can put a breakpoint on `rust_begin_unwind` to catch
 // use panic_semihosting as _; // logs messages to the host stderr; requires a debugger
 
 use cortex_m::peripheral::sau::{SauRegion, SauRegionAttribute};
+use cortex_m::peripheral::scb::Exception;
 use cortex_m::peripheral::Peripherals;
 use cortex_m_semihosting::hprintln;
+use cortex_m_rt::{entry, exception};
 use mpc::Mpc;
 
-#[cortex_m_rt::entry]
+#[entry]
 fn main() -> ! {
     hprintln!("Hello from Secure World!").unwrap();
     let peripherals = Peripherals::take().unwrap();
@@ -47,6 +49,8 @@ fn main() -> ! {
     ssram3_mpc.set_non_secure(0x28200000, 0x283F7FFF);
     cortex_m::asm::dsb();
     cortex_m::asm::isb();
+    let mut scb = peripherals.SCB;
+    scb.enable(Exception::SecureFault);
     unsafe {
         let ns_vector_table_addr = 0x00200000;
         // Write the Non-Secure Main Stack Pointer before switching state. Its value is the first
@@ -61,4 +65,12 @@ fn main() -> ! {
     loop {
         // your code goes here
     }
+}
+
+#[allow(non_snake_case)]
+#[exception]
+fn SecureFault() {
+    use cortex_m_semihosting::hprintln;
+    hprintln!("Secure Fault!!!").unwrap();
+    loop {}
 }
