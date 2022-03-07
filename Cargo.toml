@@ -1,6 +1,7 @@
 [workspace]
 members = [
     "secure-app",
+    "non-secure-app",
     "xtask",
 ]
 default-members = ["xtask"]

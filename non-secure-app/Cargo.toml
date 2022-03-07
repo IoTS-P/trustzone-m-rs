@@ -1,0 +1,18 @@
+[package]
+authors = ["luojia65 <me@luojia.cc>"]
+edition = "2018"
+readme = "README.md"
+name = "non-secure-app"
+version = "0.1.0"
+
+[dependencies]
+cortex-m = "0.7.4"
+cortex-m-rt = "0.7.1"
+cortex-m-semihosting = "0.3.7"
+panic-halt = "0.2.0"
+
+# this lets you use `cargo fix`!
+[[bin]]
+name = "non-secure-app"
+test = false
+bench = false

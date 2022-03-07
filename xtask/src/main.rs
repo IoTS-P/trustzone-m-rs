@@ -39,7 +39,7 @@ const DEFAULT_TARGET: &'static str = "thumbv8m.main-none-eabi";
 
 fn xtask_build_all() {
     xtask_build_secure();
-    // xtask_build_non_secure();
+    xtask_build_non_secure();
 }
 
 fn xtask_build_secure() {
@@ -56,19 +56,19 @@ fn xtask_build_secure() {
     }
 }
 
-// fn xtask_build_non_secure() {
-//     let cargo = env::var("CARGO").unwrap_or_else(|_| "cargo".to_string());
-//     let mut command = Command::new(cargo);
-//     command.current_dir(project_root().join("non-secure-app"));
-//     command.arg("build");
-//     command.args(&["--package", "non-secure-app"]);
-//     command.args(&["--target", DEFAULT_TARGET]);
-//     let status = command.status().unwrap();
-//     if !status.success() {
-//         eprintln!("xtask: cargo build failed with {}", status);
-//         process::exit(1);
-//     }
-// }
+fn xtask_build_non_secure() {
+    let cargo = env::var("CARGO").unwrap_or_else(|_| "cargo".to_string());
+    let mut command = Command::new(cargo);
+    command.current_dir(project_root().join("non-secure-app"));
+    command.arg("build");
+    command.args(&["--package", "non-secure-app"]);
+    command.args(&["--target", DEFAULT_TARGET]);
+    let status = command.status().unwrap();
+    if !status.success() {
+        eprintln!("xtask: cargo build failed with {}", status);
+        process::exit(1);
+    }
+}
 
 fn xtask_run() {
     let mut command = Command::new("qemu-system-arm");
@@ -79,7 +79,7 @@ fn xtask_run() {
     command.arg("-semihosting");
     command.args(&["-d", "unimp,guest_errors"]);
     command.args(&["-kernel", "secure-app"]);
-    // command.args(&["-device", "loader,file=non-secure-app")]);
+    command.args(&["-device", "loader,file=non-secure-app"]);
 
     let status = command.status().expect("run program");
 
