@@ -29,15 +29,32 @@ fn main() -> ! {
         ) -> u32;
     }
     let mut output: [u8; 32] = [0; 32];
-    unsafe {
+    let _ans1 = unsafe {
         secure_function_pointers(
             0x28000000 as *const u8,
             16,
             output.as_mut_ptr(),
             output.len(),
-        );
+        )
+    };
+    let ans2 = unsafe {
+        secure_function_pointers(
+            output.as_ptr(),
+            16,
+            output.as_mut_ptr(),
+            output.len(),
+        )
+    };
+    hprintln!("Return value: {}", ans2).unwrap();
+    extern "C" {
+        fn secure_callback(callback: extern "C" fn());
     }
-    loop {
-        // your code goes here
+    unsafe {
+        secure_callback(callback_function);
     }
+    loop {}
+}
+
+pub extern "C" fn callback_function() {
+    hprintln!("Callback function in Non-Secure World").unwrap();
 }
