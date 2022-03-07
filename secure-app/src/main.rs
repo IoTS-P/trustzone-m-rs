@@ -117,7 +117,7 @@ pub extern "C" fn secure_function_pointers(
 pub extern "C" fn secure_callback(callback: extern "C" fn()) {
     // #define cmse_nsfptr_create(p) ((__typeof__ ((p))) ((__INTPTR_TYPE__) (p) & ~1))
 
-    let callback: extern "C-cmse-nonsecure-call" fn() -> ! = unsafe {
+    let callback: extern "C-cmse-nonsecure-call" fn() = unsafe {
         core::mem::transmute::<u32, _>(callback as u32 & !1)
     };
 
