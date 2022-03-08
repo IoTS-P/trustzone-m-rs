@@ -47,7 +47,7 @@ fn main() -> ! {
     };
     hprintln!("Return value: {}", ans2).unwrap();
     extern "C" {
-        fn secure_callback(callback: extern "C" fn());
+        fn secure_callback(callback: unsafe extern "C" fn());
     }
     unsafe {
         secure_callback(callback_function);
@@ -56,5 +56,5 @@ fn main() -> ! {
 }
 
 pub extern "C" fn callback_function() {
-    hprintln!("Callback function in Non-Secure World").unwrap();
+    hprintln!("Non-Secure World callback function called!").unwrap();
 }
