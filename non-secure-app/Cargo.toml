@@ -1,6 +1,6 @@
 [package]
 authors = ["luojia65 <me@luojia.cc>"]
-edition = "2018"
+edition = "2021"
 readme = "README.md"
 name = "non-secure-app"
 version = "0.1.0"

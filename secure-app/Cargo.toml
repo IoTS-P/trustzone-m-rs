@@ -1,6 +1,6 @@
 [package]
 authors = ["luojia65 <me@luojia.cc>"]
-edition = "2018"
+edition = "2021"
 readme = "README.md"
 name = "secure-app"
 version = "0.1.0"
@@ -10,7 +10,7 @@ bitfield = "0.13.2"
 cortex-m = "0.7.4"
 cortex-m-rt = "0.7.1"
 cortex-m-semihosting = "0.3.7"
-panic-halt = "0.2.0"
+panic-semihosting = { version = "0.5.6", features = ["exit"] }
 volatile-register = "0.2.1"
 
 # Uncomment for the panic example.
