@@ -1,6 +1,6 @@
 [target.'cfg(all(target_arch = "arm", target_os = "none"))']
 rustflags = [
-  # This is needed if your flash or ram addresses are not aligned to 0x10000 in memory.x
+  # This is needed if your flash or ram addresses are not aligned to 0x10000 in memory configuration
   # See https://github.com/rust-embedded/cortex-m-quickstart/pull/95
   "-C", "link-arg=--nmagic",
 
