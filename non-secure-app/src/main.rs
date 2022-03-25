@@ -52,7 +52,7 @@ fn main() -> ! {
     unsafe {
         secure_callback(callback_function);
     }
-    hprintln!("Exit Non-Secure World!").unwrap();
+    hprintln!("Program SUCCESS, exit Non-Secure World!").unwrap();
     cortex_m_semihosting::debug::exit(cortex_m_semihosting::debug::EXIT_SUCCESS);
     unreachable!()
 }

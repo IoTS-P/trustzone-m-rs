@@ -77,7 +77,6 @@ fn xtask_run() {
     command.args(&["-machine", "mps2-an505"]);
     command.arg("-nographic");
     command.arg("-semihosting");
-    command.args(&["-d", "unimp,guest_errors"]);
     command.args(&["-kernel", "secure-app"]);
     command.args(&["-device", "loader,file=non-secure-app"]);
 
