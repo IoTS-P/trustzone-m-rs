@@ -52,12 +52,12 @@ fn main() -> ! {
     }
     let base_nsc = unsafe { transmute::<&mut u32, u32>(&mut __veneer_base) };
     let limit_nsc = unsafe { transmute::<&mut u32, u32>(&mut __veneer_limit) };
-    hprintln!("{:#x} {:#x}", base_nsc, limit_nsc);
+    hprintln!("SG function stub region is at {:#x} .. {:#x}", base_nsc, limit_nsc).unwrap();
     sau.set_region(
         2,
         SauRegion {
             base_address: base_nsc,
-            limit_address: limit_nsc + 0x1F, // todo: if there are too much functions, veneer limit can't link correctly
+            limit_address: limit_nsc - 1,
             attribute: SauRegionAttribute::NonSecureCallable,
         },
     )
