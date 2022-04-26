@@ -11,12 +11,13 @@ mod spcb;
 // use panic_itm as _; // logs messages over ITM; requires ITM support
 use panic_semihosting as _; // logs messages to the host stderr; requires a debugger
 
+use core::mem::transmute;
+use cortex_m::cmse::{AccessType, TestTarget};
 use cortex_m::peripheral::sau::{SauRegion, SauRegionAttribute};
 use cortex_m::peripheral::scb::Exception;
 use cortex_m::peripheral::Peripherals;
-use cortex_m::cmse::{AccessType, TestTarget};
-use cortex_m_semihosting::hprintln;
 use cortex_m_rt::{entry, exception};
+use cortex_m_semihosting::hprintln;
 use mpc::Mpc;
 
 #[entry]
@@ -32,7 +33,8 @@ fn main() -> ! {
             limit_address: 0x00400000 - 1,
             attribute: SauRegionAttribute::NonSecure,
         },
-    ).unwrap();
+    )
+    .unwrap();
     // Non-Secure RAM area
     sau.set_region(
         1,
@@ -41,16 +43,25 @@ fn main() -> ! {
             limit_address: 0x28400000 - 1,
             attribute: SauRegionAttribute::NonSecure,
         },
-    ).unwrap();
+    )
+    .unwrap();
     // Allow to call NSC functions
+    extern "C" {
+        static mut __veneer_base: u32;
+        static mut __veneer_limit: u32;
+    }
+    let base_nsc = unsafe { transmute::<&mut u32, u32>(&mut __veneer_base) };
+    let limit_nsc = unsafe { transmute::<&mut u32, u32>(&mut __veneer_limit) };
+    hprintln!("{:#x} {:#x}", base_nsc, limit_nsc);
     sau.set_region(
         2,
         SauRegion {
-            base_address: 0x10000000,
-            limit_address: 0x101FFFFF | 0x1F,
+            base_address: base_nsc,
+            limit_address: limit_nsc + 0x1F, // todo: if there are too much functions, veneer limit can't link correctly
             attribute: SauRegionAttribute::NonSecureCallable,
         },
-    ).unwrap();
+    )
+    .unwrap();
     sau.enable();
     // Code in SSRAM1
     let mut ssram1_mpc = Mpc::new(0x58007000, 0x00000000);
@@ -95,11 +106,9 @@ pub extern "C" fn secure_function_pointers(
     hprintln!("secure function with pointers called!").unwrap();
     // Is NS allowed to read at input and write at signature and signature_length?
     let input_check =
-        TestTarget::check_range(input as *mut u32, input_length,
-                                AccessType::NonSecure).unwrap();
+        TestTarget::check_range(input as *mut u32, input_length, AccessType::NonSecure).unwrap();
     let output_check =
-        TestTarget::check_range(output as *mut u32, output_length,
-                                AccessType::NonSecure).unwrap();
+        TestTarget::check_range(output as *mut u32, output_length, AccessType::NonSecure).unwrap();
     if !input_check.ns_readable() || !output_check.ns_read_and_writable() {
         hprintln!("Permission denied").unwrap();
         1
@@ -113,9 +122,8 @@ pub extern "C" fn secure_function_pointers(
 #[no_mangle]
 #[cmse_nonsecure_entry]
 pub extern "C" fn secure_callback(callback: unsafe extern "C" fn()) {
-    let callback: unsafe extern "C-cmse-nonsecure-call" fn() = unsafe {
-        core::mem::transmute(callback)
-    };
+    let callback: unsafe extern "C-cmse-nonsecure-call" fn() =
+        unsafe { core::mem::transmute(callback) };
     unsafe {
         callback();
     }
