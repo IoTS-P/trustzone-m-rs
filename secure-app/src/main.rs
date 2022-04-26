@@ -43,13 +43,11 @@ fn main() -> ! {
         },
     ).unwrap();
     // Allow to call NSC functions
-    let base_nsc = 0x10000000;
-    let limit_nsc = 0x10200000;
     sau.set_region(
         2,
         SauRegion {
-            base_address: base_nsc,
-            limit_address: limit_nsc | 0x1F,
+            base_address: 0x10000000,
+            limit_address: 0x101FFFFF | 0x1F,
             attribute: SauRegionAttribute::NonSecureCallable,
         },
     ).unwrap();
