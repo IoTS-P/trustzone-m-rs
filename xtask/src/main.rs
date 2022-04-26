@@ -72,7 +72,12 @@ fn xtask_build_non_secure() {
 
 fn xtask_run() {
     let mut command = Command::new("qemu-system-arm");
-    command.current_dir(project_root().join("target").join(DEFAULT_TARGET).join("debug"));
+    command.current_dir(
+        project_root()
+            .join("target")
+            .join(DEFAULT_TARGET)
+            .join("debug"),
+    );
     command.args(&["-cpu", "cortex-m33"]);
     command.args(&["-machine", "mps2-an505"]);
     command.arg("-nographic");
