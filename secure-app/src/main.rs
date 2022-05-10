@@ -47,11 +47,11 @@ fn main() -> ! {
     .unwrap();
     // Allow to call NSC functions
     extern "C" {
-        static mut __veneer_base: u32;
-        static mut __veneer_limit: u32;
+        static __veneer_base: u32;
+        static __veneer_limit: u32;
     }
-    let base_nsc = unsafe { transmute::<&mut u32, u32>(&mut __veneer_base) };
-    let limit_nsc = unsafe { transmute::<&mut u32, u32>(&mut __veneer_limit) };
+    let base_nsc = unsafe { transmute::<_, u32>(&__veneer_base) };
+    let limit_nsc = unsafe { transmute::<_, u32>(&__veneer_limit) };
     hprintln!("SG function stub region is at {:#x} .. {:#x}", base_nsc, limit_nsc).unwrap();
     sau.set_region(
         2,
