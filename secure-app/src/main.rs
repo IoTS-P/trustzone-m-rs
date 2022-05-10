@@ -22,7 +22,7 @@ use mpc::Mpc;
 
 #[entry]
 fn main() -> ! {
-    hprintln!("Hello from Secure World!").unwrap();
+    hprintln!("Hello from Secure World!");
     let peripherals = Peripherals::take().unwrap();
     let mut sau = peripherals.SAU;
     // Non-Secure Flash area
@@ -52,7 +52,11 @@ fn main() -> ! {
     }
     let base_nsc = unsafe { transmute::<_, u32>(&__veneer_base) };
     let limit_nsc = unsafe { transmute::<_, u32>(&__veneer_limit) };
-    hprintln!("SG function stub region is at {:#x} .. {:#x}", base_nsc, limit_nsc).unwrap();
+    hprintln!(
+        "SG function stub region is at {:#x} .. {:#x}",
+        base_nsc,
+        limit_nsc
+    );
     sau.set_region(
         2,
         SauRegion {
@@ -92,7 +96,7 @@ fn main() -> ! {
 #[no_mangle]
 #[cmse_nonsecure_entry]
 pub extern "C" fn secure_function() {
-    hprintln!("secure function called!").unwrap();
+    hprintln!("secure function called!");
 }
 
 #[no_mangle]
@@ -103,17 +107,17 @@ pub extern "C" fn secure_function_pointers(
     output: *mut u8,
     output_length: usize,
 ) -> u32 {
-    hprintln!("secure function with pointers called!").unwrap();
+    hprintln!("secure function with pointers called!");
     // Is NS allowed to read at input and write at signature and signature_length?
     let input_check =
         TestTarget::check_range(input as *mut u32, input_length, AccessType::NonSecure).unwrap();
     let output_check =
         TestTarget::check_range(output as *mut u32, output_length, AccessType::NonSecure).unwrap();
     if !input_check.ns_readable() || !output_check.ns_read_and_writable() {
-        hprintln!("Permission denied").unwrap();
+        hprintln!("Permission denied");
         1
     } else {
-        hprintln!("Permission accepted").unwrap();
+        hprintln!("Permission accepted");
         // Deal with the operation...
         0
     }
@@ -132,6 +136,6 @@ pub extern "C" fn secure_callback(callback: unsafe extern "C" fn()) {
 #[allow(non_snake_case)]
 #[exception]
 fn SecureFault() {
-    hprintln!("Secure Fault!!!").unwrap();
+    hprintln!("Secure Fault!!!");
     loop {}
 }
