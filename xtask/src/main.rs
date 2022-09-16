@@ -85,11 +85,15 @@ fn xtask_run() {
     command.args(&["-kernel", "secure-app"]);
     command.args(&["-device", "loader,file=non-secure-app"]);
 
-    let status = command.status().expect("run program");
+    let status = command.status();
 
-    if !status.success() {
-        eprintln!("xtask: qemu failed with {}", status);
-        process::exit(status.code().unwrap_or(1));
+    if let Err(e) = status {
+        eprintln!(
+            "xtask: qemu-system-arm failed: {}
+    Check if you have `qemu-system-arm` installed and try again.",
+            e
+        );
+        process::exit(1);
     }
 }
 
