@@ -12,5 +12,4 @@ debug = true # symbols are nice and they don't increase the size on Flash
 lto = true # better optimizations
 
 [patch.crates-io]
-cortex-m = { git = "https://github.com/rust-embedded/cortex-m" }
 cortex-m-rt = { git = "https://github.com/rust-embedded/cortex-m" }

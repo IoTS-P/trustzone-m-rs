@@ -7,7 +7,7 @@ version = "0.1.0"
 
 [dependencies]
 bitfield = "0.13.2"
-cortex-m = "0.7.4"
+cortex-m = "0.7.6"
 cortex-m-rt = "0.7.1"
 cortex-m-semihosting = "0.5.0"
 panic-semihosting = { version = "0.5.6", features = ["exit"] }
